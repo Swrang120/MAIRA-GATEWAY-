@@ -25,6 +25,7 @@ jobs:
           ref: main
           path: _gateway_source
           fetch-depth: 1
+          lfs: true
       - name: Replace destination contents with source repository
         shell: bash
         run: |

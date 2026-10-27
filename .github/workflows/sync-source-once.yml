@@ -29,7 +29,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rsync -a --delete --exclude='/.git/' _gateway_source/ ./
+          rsync -a --delete --exclude='/.git/' --exclude='/_gateway_source/' _gateway_source/ ./
           rm -rf _gateway_source
           rm -f .github/workflows/sync-source-once.yml
           git config user.name "github-actions[bot]"

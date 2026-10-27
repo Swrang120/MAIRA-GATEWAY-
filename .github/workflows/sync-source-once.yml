@@ -1,0 +1,43 @@
+name: One-time full source sync
+on:
+  push:
+    paths:
+      - ".github/workflows/sync-source-once.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: full-source-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout destination repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Checkout SMART_GATEWAY_ source
+        uses: actions/checkout@v4
+        with:
+          repository: Swrang120/SMART_GATEWAY_
+          ref: main
+          path: _gateway_source
+          fetch-depth: 1
+      - name: Replace destination contents with source repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync -a --delete --exclude='/.git/' _gateway_source/ ./
+          rm -rf _gateway_source
+          rm -f .github/workflows/sync-source-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Destination already matches source; no commit required."
+          else
+            git commit -m "Sync complete SMART_GATEWAY_ source into MAIRA-GATEWAY-"
+            git push origin HEAD:main
+          fi
